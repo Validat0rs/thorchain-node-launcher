@@ -1,0 +1,42 @@
+global:
+  tag: mainnet-1.132.1
+  hash: 92078683fd1e439adc5afc73aef28a686d5b014bf99808ea600e98b0c9c84adc
+
+thornode:
+  haltHeight:
+  statesync:
+    auto: false
+    snapshotInterval: 0
+
+midgard:
+  blockstore:
+    enabled: true
+    remote: https://storage.googleapis.com/public-snapshots-ninerealms/midgard-blockstore/mainnet/v2/
+    size: 20Gi
+
+binance-daemon:
+  enabled: true
+
+bitcoin-daemon:
+  enabled: true
+
+litecoin-daemon:
+  enabled: true
+
+bitcoin-cash-daemon:
+  enabled: true
+
+ethereum-daemon:
+  enabled: true
+
+dogecoin-daemon:
+  enabled: true
+
+gaia-daemon:
+  enabled: true
+
+avalanche-daemon:
+  enabled: true
+
+binance-smart-daemon:
+  enabled: true

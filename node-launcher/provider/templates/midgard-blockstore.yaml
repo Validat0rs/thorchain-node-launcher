@@ -1,0 +1,132 @@
+{{- if .Values.midgardBlockstore.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: midgard-blockstore
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.midgardBlockstore.pvc.size }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: midgard-blockstore
+data:
+  dump.sh: |
+    #!/bin/sh
+    set -euo pipefail
+
+    {{ if .Values.midgardBlockstore.readyEndpoint }}
+    # wait for mesh to be ready
+    while ! wget -qO- "{{ .Values.midgardBlockstore.readyEndpoint }}";
+      do sleep 1;
+    done
+    {{- end }}
+
+    # mark dump as complete
+    trap "touch /blockstore/dump-complete" EXIT
+
+    # mark dump failed if any command fail or job terminated
+    trap "touch /blockstore/dump-fail" ERR INT TERM
+
+    # dump blockstore
+    /dump /config.json
+
+    # remove partial files
+    rm -f /blockstore/*.tmp
+
+    # recreate hashes file
+    cd /blockstore
+    rm -f hashes
+    find . -maxdepth 1 -type f -not -name 'lost+found' -not -name 'hashes' \
+      | sort \
+      | sed 's|^\./||' \
+      | xargs sha256sum > hashes
+  sync.sh: |
+    #!/bin/sh
+    set -euo pipefail
+
+    cleanup() {
+      {{- if .Values.midgardBlockstore.quitEndpoint }}
+      # quit mesh container
+      curl -sX POST "{{ .Values.midgardBlockstore.quitEndpoint }}"
+      {{- end }}
+
+      # clear dump status files
+      rm -f /blockstore/dump-*
+    }
+
+    # wait for dump to complete
+    while [ ! -f /blockstore/dump-complete ]; do sleep 1; done
+
+    # cleanup on exit
+    trap cleanup EXIT
+
+    # exit if dump failed
+    if [ -f /blockstore/dump-fail ]; then
+      exit 1
+    fi
+
+    # remove dump magic files for next run
+    rm -f /blockstore/dump-*
+
+    # upload to minio
+    mc config host add minio http://minio:9000 minio minio123
+    mc mb minio/snapshots || true
+    mc anonymous set download minio/snapshots/midgard-blockstore/
+    mc mirror --remove --overwrite /blockstore minio/snapshots/midgard-blockstore/
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: midgard-blockstore
+spec:
+  schedule: {{ .Values.midgardBlockstore.schedule }}
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: Never
+          activeDeadlineSeconds: 21600 # 6 hours
+          containers:
+            - name: dump
+              image: {{ .Values.midgardBlockstore.image.name }}:{{ .Values.midgardBlockstore.image.tag }}@sha256:{{ .Values.midgardBlockstore.image.hash }}
+              imagePullPolicy: IfNotPresent
+              env:
+                - name: MIDGARD_BLOCKSTORE_LOCAL
+                  value: /blockstore
+                {{- range $key, $value := .Values.midgardBlockstore.env }}
+                - name: {{ $key }}
+                  value: {{ $value | quote }}
+                {{- end }}
+              command:
+                - /config/dump.sh
+              volumeMounts:
+                - name: blockstore
+                  mountPath: /blockstore
+                - name: config
+                  mountPath: /config
+            - name: sync
+              image: {{ .Values.minio.image.name }}:{{ .Values.minio.image.tag }}@sha256:{{ .Values.minio.image.hash }}
+              imagePullPolicy: IfNotPresent
+              command:
+              - /config/sync.sh
+              volumeMounts:
+                - name: blockstore
+                  mountPath: /blockstore
+                - name: config
+                  mountPath: /config
+          volumes:
+            - name: config
+              configMap:
+                name: midgard-blockstore
+                defaultMode: 0755
+            - name: blockstore
+              persistentVolumeClaim:
+                claimName: midgard-blockstore
+{{- end }}

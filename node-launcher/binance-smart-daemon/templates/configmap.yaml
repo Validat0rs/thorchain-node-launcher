@@ -1,0 +1,90 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "binance-smart-daemon.fullname" . }}-scripts
+data:
+  entrypoint.sh: |
+    #!/bin/bash
+
+    args=()
+    args+=('--http')
+    args+=('--http.addr=0.0.0.0')
+    args+=('--http.port='"$PORT")
+    args+=('--http.api=eth,net,engine,web3,miner,personal,txpool,debug')
+    args+=('--http.corsdomain=*')
+    args+=('--http.vhosts=*')
+    args+=('--datadir=data')
+    args+=('--config=config/config.toml')
+    args+=('--history.transactions=90000')
+    args+=('--syncmode=full')
+    args+=('--tries-verify-mode=none')
+
+    echo "${args[@]}"
+    geth "${args[@]}"
+
+  init.sh: |
+    #!/bin/sh
+
+    set -euo pipefail
+
+    # work in data mount
+    cd /home/bsc/data
+
+    # cleanup snapshot and exit if already started
+    if [ -d geth/chaindata ]; then
+      rm -f *.lz4
+      rm -f *.zst
+      rm -rf server
+      rm -rf geth.*
+      chown -R 1000:1000 /home/bsc/data/geth
+      chmod -R +x /home/bsc/data/geth
+      exit 0
+    fi
+
+    # install dependencies
+    apk add aria2 curl jq lz4 zstd
+
+    # download snapshot
+    snapshotMD=https://raw.githubusercontent.com/48Club/bsc-snapshots/main/README.md
+    snapshotURL=$(curl -sL "$snapshotMD" | grep -Eo 'https:\/\/[a-zA-Z0-9.\/]+geth\.fast\.[a-zA-Z0-9.]+')
+    aria2c --continue --split=14 --max-connection-per-server=14 \
+        --min-split-size=100M --out=snapshot.tar.zst "$snapshotURL"
+
+    # decompress snapshot
+    echo "Decompressing snapshot..."
+    zstd -cd snapshot.tar.zst | tar xvf - --strip-components=1
+
+    # cleanup snapshot
+    rm -f *.lz4
+    rm -f *.zst
+    rm -rf server
+    rm -rf geth.*
+    chown -R 1000:1000 /home/bsc/data/geth
+    chmod -R +x /home/bsc/data/geth
+
+  probe.sh: |
+    #!/bin/sh
+
+    FILE=/home/bsc/.probe_last_height
+
+    SYNCING=$(geth attach --exec eth.syncing --datadir=data) || exit 1
+    HEIGHT=$(geth attach --exec eth.blockNumber --datadir=data) || exit 1
+
+    # first time we are syncing from scratch
+    if [ "$HEIGHT" = "0" ]; then
+      exit 0
+    fi
+
+    if [ ! -f "$FILE" ]; then
+      echo "$HEIGHT" >$FILE
+      echo "Not getting new blocks"
+      exit 1
+    fi
+
+    OLD=$(cat $FILE)
+    echo "$HEIGHT" >$FILE
+    if [ "$OLD" = "$HEIGHT" ]; then
+      echo "Not getting new blocks"
+      exit 1
+    fi
+    exit 0

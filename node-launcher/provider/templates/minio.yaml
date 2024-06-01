@@ -1,0 +1,89 @@
+{{- if .Values.minio.enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: minio
+spec:
+  serviceName: minio
+  replicas: 1
+  selector:
+    matchLabels:
+      app: minio
+  template:
+    metadata:
+      labels:
+        app: minio
+    spec:
+      containers:
+        - name: nginx
+          image: {{ .Values.minio.nginx.image.name }}:{{ .Values.minio.nginx.image.tag }}@sha256:{{ .Values.minio.nginx.image.hash }}
+          volumeMounts:
+            - name: minio-config
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+        - name: minio
+          image: {{ .Values.minio.image.name }}:{{ .Values.minio.image.tag }}@sha256:{{ .Values.minio.image.hash }}
+          args:
+            - server
+            - /data
+          env:
+            - name: MINIO_ROOT_USER
+              value: minio
+            - name: MINIO_ROOT_PASSWORD
+              value: minio123
+          ports:
+            - containerPort: 9000
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: minio-config
+          configMap:
+            name: minio-config
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: {{ .Values.minio.pvc.size }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio
+spec:
+  selector:
+    app: minio
+  ports:
+    - port: 80
+      name: public
+    - port: 9000
+      name: internal
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: minio-config
+data:
+  nginx.conf: |
+    user nginx;
+    worker_processes auto;
+    events {
+      worker_connections 1024;
+    }
+    http {
+      server {
+        listen 80;
+        listen [::]:80;
+        location /snapshots {
+          limit_except GET {
+            deny all;
+          }
+          proxy_pass http://localhost:9000;
+        }
+      }
+    }
+{{- end }}

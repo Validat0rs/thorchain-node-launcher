@@ -1,0 +1,7 @@
+apiVersion: v2
+name: gateway
+description: THORNode gateway
+type: application
+version: 0.1.0
+
+appVersion: 0.1.0

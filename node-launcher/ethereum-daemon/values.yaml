@@ -1,0 +1,115 @@
+# Default values for ethereum-daemon.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+net: mainnet
+
+# Leveraging a checkpoint for the beacon chain will use less disk space and reduce sync
+# time for the beacon chain to a few minutes (geth may still take hours or days). One
+# provider list is found at https://eth-clients.github.io/checkpoint-sync-endpoints -
+# you may select one from there or another source if desired. If you leverage a sync
+# checkpoint it is important to note that the provider becomes a trusted party and
+# should be verified by running `make verify-ethereum` after beacon sync shows 100%.
+beaconCheckpointSyncUrl: ""
+
+# Following the release of Geth v1.13 it is recommended that all new nodes start the
+# daemon with this enabled. We are currently setting the default value to false, since
+# enabling this on an existing node will trigger a re-sync of the state, but in time we
+# intend to make this default and remove the flag. The new storage mechanism will
+# improve pruning functionality and avoid the "Head state missing, repairing chain..."
+# logs which occasionally cause significant downtime after unclean shutdown. More
+# information available in: https://blog.ethereum.org/2023/09/12/geth-v1-13-0.
+stateSchemePath: false
+
+replicaCount: 1
+
+image:
+  eth:
+    name: ethereum/client-go
+    tag: "" # When tag is empty it defaults to the chart appVersion.
+    hash: 3ca7510d2b092b95f1b096a5e112ef2a2f6dc98debc0316190d0e282137ac5fb
+  prysm:
+    name: gcr.io/prysmaticlabs/prysm/beacon-chain
+    tag: v5.0.3
+    hash: 6c775ba7c814c46e7680a21f05fbc5fdedafb493c4189b39d7ae171e90ea8eae
+  scripts:
+    repository: registry.gitlab.com/thorchain/thornode
+    pullPolicy: IfNotPresent
+    tag: mocknet
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name:
+
+podSecurityContext:
+  {}
+  # fsGroup: 2000
+
+securityContext:
+  {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 8545
+
+ingress:
+  enabled: false
+  annotations:
+    {}
+    # kubernetes.io/ingress.class: nginx
+    # cert-manager.io/cluster-issuer: letsencrypt-production
+  hosts:
+    []
+    # - host: midgard.example.com
+    #   paths:
+    #   - path: /
+    #     backend:
+    #       serviceName: gateway
+    #       servicePort: midgard
+  tls:
+    []
+    # - secretName: midgard-tls
+    #   hosts:
+    #     - midgard.example.com
+
+persistence:
+  enabled: true
+  size:
+    stagenet: 900Gi
+    mainnet: 1792Gi
+  accessMode: ReadWriteOnce
+  # storageClass: "-"
+  #
+resources:
+  limits:
+    # cpu: 1
+    memory: 12Gi
+  requests:
+    cpu: 2
+    memory: 12Gi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# necessary for lint
+global:
+  images:
+    alpine:
+      tag: foo
+      hash: bar

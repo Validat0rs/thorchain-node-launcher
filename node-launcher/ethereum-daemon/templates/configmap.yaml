@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "ethereum-daemon.fullname" . }}-scripts
+data:
+  init-beacon.sh: |
+    #!/bin/sh
+
+    set -euo pipefail
+    apk add openssl
+    openssl rand -hex 32 | tr -d "\n" > /data/jwt.hex
+
+  probe.sh: |
+    #!/bin/sh
+
+    FILE=/root/.probe_last_height
+    SYNCING=$(geth attach --exec eth.syncing) || exit 1
+    HEIGHT=$(geth attach --exec eth.blockNumber) || exit 1
+
+    # first time we are syncing from scratch
+    if [ "$HEIGHT" = "0" ]; then
+      exit 0
+    fi
+
+    if [ ! -f "$FILE" ]; then
+      echo "$HEIGHT" >$FILE
+      echo "Not getting new blocks"
+      exit 1
+    fi
+
+    OLD=$(cat $FILE)
+    echo "$HEIGHT" >$FILE
+    if [ "$OLD" = "$HEIGHT" ]; then
+      echo "Not getting new blocks"
+      exit 1
+    fi
+    exit 0

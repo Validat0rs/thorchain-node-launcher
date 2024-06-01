@@ -1,0 +1,44 @@
+version: 0.1
+cli:
+  version: 1.22.0
+plugins:
+  sources:
+    - id: trunk
+      ref: v1.5.0
+      uri: https://github.com/trunk-io/plugins
+lint:
+  enabled:
+    - gofmt@1.20.4
+    - golangci-lint@1.57.2
+    # - osv-scanner@1.7.2
+    - checkov@3.2.74
+    - trivy@0.50.4
+    - trufflehog@3.74.0
+    - yamllint@1.35.1
+    - shfmt@3.6.0
+    - markdownlint@0.39.0
+    - hadolint@2.12.0
+    - git-diff-check
+    - taplo@0.8.1
+    - gitleaks@8.18.2
+    - shellcheck@0.10.0
+    - prettier@3.2.5
+  ignore:
+    - linters:
+        - yamllint
+        - prettier
+      paths:
+        # Golang templates in the YAML files cause panic.
+        - "**/templates/*.yaml"
+runtimes:
+  enabled:
+    - python@3.10.8
+    - go@1.22.2
+    - node@18.12.1
+actions:
+  disabled:
+    - trunk-announce
+    - trunk-check-pre-push
+    - trunk-fmt-pre-commit
+  enabled:
+    - trunk-upgrade-available
