@@ -96,10 +96,10 @@ persistence:
 resources:
   limits:
     # cpu: 1
-    memory: 12Gi
+    memory: 64Gi
   requests:
-    cpu: 2
-    memory: 12Gi
+    cpu: 4
+    memory: 64Gi
 
 nodeSelector: {}
 
