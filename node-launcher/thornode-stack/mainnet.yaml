@@ -14,29 +14,58 @@ midgard:
     remote: https://storage.googleapis.com/public-snapshots-ninerealms/midgard-blockstore/mainnet/v2/
     size: 20Gi
 
+bifrost:
+  binanceDaemon:
+    mainnet: http://binance-daemon.daemons.svc.cluster.local:27147
+  env:
+    BSC_HOST: http://binance-smart-daemon.daemons.svc.cluster.local:8545
+    BIFROST_CHAINS_BSC_RPC_HOST: http://binance-smart-daemon.daemons.svc.cluster.local:8545
+    BIFROST_CHAINS_BSC_BLOCK_SCANNER_RPC_HOST: http://binance-smart-daemon.daemons.svc.cluster.local:8545
+
+  bitcoinDaemon:
+    mainnet: bitcoin-daemon.daemons.svc.cluster.local:8332
+  litecoinDaemon:
+    mainnet: litecoin-daemon.daemons.svc.cluster.local:9332
+  bitcoinCashDaemon:
+    mainnet: bitcoin-cash-daemon.daemons.svc.cluster.local:8332
+  dogecoinDaemon:
+    mainnet: dogecoin-daemon.daemons.svc.cluster.local:22555
+  ethereumDaemon:
+    mainnet: http://ethereum-daemon.daemons.svc.cluster.local:8545
+  gaiaDaemon:
+    enabled: true
+    mainnet:
+      rpc: http://gaia-daemon.daemons.svc.cluster.local:26657
+      grpc: gaia-daemon.daemons.svc.cluster.local:9090
+      grpcTLS: false
+  avaxDaemon:
+    mainnet: http://avalanche-daemon.daemons.svc.cluster.local:9650/ext/bc/C/rpc
+
+
+# disable all daemons in node namespace
 binance-daemon:
-  enabled: true
+  enabled: false
 
 bitcoin-daemon:
-  enabled: true
+  enabled: false
 
 litecoin-daemon:
-  enabled: true
+  enabled: false
 
 bitcoin-cash-daemon:
-  enabled: true
+  enabled: false
 
 ethereum-daemon:
-  enabled: true
+  enabled: false
 
 dogecoin-daemon:
-  enabled: true
+  enabled: false
 
 gaia-daemon:
-  enabled: true
+  enabled: false
 
 avalanche-daemon:
-  enabled: true
+  enabled: false
 
 binance-smart-daemon:
-  enabled: true
+  enabled: false
