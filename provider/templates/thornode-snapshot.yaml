@@ -1,0 +1,72 @@
+{{- if .Values.thornodeSnapshot.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: thornode-snapshot
+spec:
+  schedule: {{ .Values.thornodeSnapshot.schedule }}
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        spec:
+          activeDeadlineSeconds: {{ .Values.thornodeSnapshot.activeDeadlineSeconds }}
+          serviceAccountName: thornode-snapshot
+          containers:
+            - name: thornode-snapshot
+              image: {{ .Values.thornodeSnapshot.image.name }}:{{ .Values.thornodeSnapshot.image.tag }}@sha256:{{ .Values.thornodeSnapshot.image.hash }}
+              env:
+                {{- range $key, $value := .Values.thornodeSnapshot.env }}
+                - name: {{ $key }}
+                  value: {{ $value | quote }}
+                {{- end }}
+                - name: MINIO_IMAGE
+                  value: {{ .Values.minio.image.name }}:{{ .Values.minio.image.tag }}@sha256:{{ .Values.minio.image.hash }}
+                {{- range $key, $value := .Values.thornodeSnapshot.secretEnv }}
+                - name: {{ $key }}
+                  valueFrom:
+                    secretKeyRef:
+                      key: {{ $value | quote }}
+                      name: provider
+                {{- end }}
+          restartPolicy: Never
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: thornode-snapshot
+rules:
+  - apiGroups: [""]
+    resources: [pods]
+    verbs: [get, create, patch, delete, update, list, watch]
+  - apiGroups: [""]
+    resources: [pods/log]
+    verbs: [get]
+  - apiGroups: [snapshot.storage.k8s.io]
+    resources: [volumesnapshots]
+    verbs: [delete, get, create]
+  - apiGroups: [""]
+    resources: [persistentvolumeclaims]
+    verbs: [delete, get, create, update]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: thornode-snapshot
+subjects:
+  - kind: ServiceAccount
+    name: thornode-snapshot
+    apiGroup: ""
+roleRef:
+  kind: Role
+  name: thornode-snapshot
+  apiGroup: ""
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: thornode-snapshot
+{{- end }}

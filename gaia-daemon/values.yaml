@@ -1,0 +1,101 @@
+# Default values for gaia-daemon.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+net: mainnet
+
+replicaCount: 1
+
+image:
+  name: registry.gitlab.com/thorchain/devops/node-launcher
+  tag: gaia-daemon-16.0.0
+  hash: 8a6edd2456016438b7459751ab85cd3a2eba08077f99459207bc17001310de90
+
+flags:
+# Manually pass known good peers from somewhere like: https://polkachu.com/live_peers/cosmos
+# - --p2p.persistent_peers=648742a99b2714a442506bd5dbefe74c40346fbd@18.225.13.106:26656,...
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+hostNetwork: false
+
+service:
+  type: ClusterIP
+  port:
+    mainnet:
+      p2p: 26656
+      rpc: 26657
+      grpc: 9090
+    stagenet:
+      p2p: 26656
+      rpc: 26657
+      grpc: 9090
+
+ingress:
+  enabled: false
+  annotations:
+    {}
+    # kubernetes.io/ingress.class: nginx
+    # cert-manager.io/cluster-issuer: letsencrypt-production
+  hosts:
+    []
+    # - host: midgard.example.com
+    #   paths:
+    #   - path: /
+    #     backend:
+    #       serviceName: gateway
+    #       servicePort: midgard
+  tls:
+    []
+    # - secretName: midgard-tls
+    #   hosts:
+    #     - midgard.example.com
+
+persistence:
+  enabled: true
+  size:
+    mainnet: 2Ti
+    stagenet: 2Ti
+  accessMode: ReadWriteOnce
+  # storageClass: "-"
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name:
+
+podSecurityContext:
+  fsGroup: 1000
+
+securityContext:
+  {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+resources:
+  requests:
+    cpu: 4
+    memory: 16Gi
+  limits:
+    # cpu: 2
+    memory: 24Gi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+global:
+  images:
+    alpine:
+      tag: latest
+      hash: 4edbd2beb5f78b1014028f4fbb99f3237d9561100b6881aabbf5acce2c4f9454

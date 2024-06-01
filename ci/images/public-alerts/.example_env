@@ -1,0 +1,9 @@
+WEBHOOKS_ACTIVITY_SLACK=https://hooks.slack.com/services/<YOUR_SLACK_WEBHOOK_URL_INFO>
+WEBHOOKS_ERRORS_SLACK=https://hooks.slack.com/services/<YOUR_SLACK_ERROR_CHANNEL_WEBHOOK_URL_INFO>
+WEBHOOKS_ACTIVITY_DISCORD=https://discord.com/api/webhooks/<YOUR_DISCORD_WEBHOOK_URL_INFO>
+ENDPOINTS_THORNODE_API=http://localhost:1317
+ENDPOINTS_THORNODE_RPC=https://rpc.ninerealms.com:443
+ENDPOINTS_MIDGARD_API=https://midgard.ninerealms.com
+ENDPOINTS_NINEREALMS_API=https://api.ninerealms.com
+ENDPOINTS_EXPLORER_URL=https://runescan.io
+DATA_DIR=./data

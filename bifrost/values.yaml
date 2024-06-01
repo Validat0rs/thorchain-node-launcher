@@ -1,0 +1,167 @@
+# Default values for bifrost.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+net: mainnet
+
+signer:
+  name: thorchain
+  password: password
+  mnemonicSecret: ""
+  passwordSecret: ""
+
+# use in multi nodes envs
+peer:
+
+debug: false
+
+# provide custom environment variables to override config defaults:
+# https://gitlab.com/thorchain/thornode/-/blob/develop/config/default.yaml
+env:
+  BIFROST_CHAINS_BTC_SCANNER_LEVELDB_COMPACTION_TABLE_SIZE_MULTIPLIER: "1"
+
+  # enable binance smart chain
+  BSC_HOST: http://binance-smart-daemon:8545
+  BIFROST_CHAINS_BSC_DISABLED: "false"
+  BIFROST_CHAINS_BSC_RPC_HOST: http://binance-smart-daemon:8545
+  BIFROST_CHAINS_BSC_BLOCK_SCANNER_RPC_HOST: http://binance-smart-daemon:8545
+
+thorApi: thornode:1317
+chainID:
+  mainnet: thorchain-mainnet-v1
+  stagenet: thorchain-stagenet-v2
+
+thorDaemon:
+  mainnet: thornode:27147
+  stagenet: thornode:27147
+
+binanceDaemon:
+  enabled: true
+  mainnet: http://binance-daemon:27147
+  stagenet: http://binance-daemon:27147
+
+bitcoinDaemon:
+  enabled: true
+  mainnet: bitcoin-daemon:8332
+  stagenet: bitcoin-daemon:8332
+
+litecoinDaemon:
+  enabled: true
+  mainnet: litecoin-daemon:9332
+  stagenet: litecoin-daemon:9332
+
+bitcoinCashDaemon:
+  enabled: true
+  mainnet: bitcoin-cash-daemon:8332
+  stagenet: bitcoin-cash-daemon:8332
+
+dogecoinDaemon:
+  enabled: true
+  mainnet: dogecoin-daemon:22555
+  stagenet: dogecoin-daemon:22555
+
+ethereumDaemon:
+  enabled: true
+  mainnet: http://ethereum-daemon:8545
+  stagenet: http://ethereum-daemon:8545
+
+terraDaemon:
+  enabled: false
+  mainnet: http://terra-daemon:26657
+  stagenet: http://terra-daemon:26657
+
+gaiaDaemon:
+  enabled: true
+  mainnet:
+    rpc: http://gaia-daemon:26657
+    grpc: gaia-daemon:9090
+    grpcTLS: false
+  stagenet:
+    rpc: http://gaia-daemon:26657
+    grpc: gaia-daemon:9090
+    grpcTLS: false
+
+avaxDaemon:
+  enabled: true
+  mainnet: http://avalanche-daemon:9650/ext/bc/C/rpc
+  stagenet: http://avalanche-daemon:9650/ext/bc/C/rpc
+
+replicaCount: 1
+
+strategyType: Recreate
+
+image:
+  repository: registry.gitlab.com/thorchain/thornode
+  pullPolicy: IfNotPresent
+  tag: mainnet
+  hash: placeholder
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+persistence:
+  enabled: true
+  size:
+    mainnet: 50Gi
+    stagenet: 10Gi
+  accessMode: ReadWriteOnce
+  # existingClaim: your-pvc
+  # storageClass: "-"
+  # hostPath: /host-path
+
+service:
+  type: ClusterIP
+  port:
+    p2p: 5040
+    http: 6040
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name:
+
+priorityClassName: ""
+
+podSecurityContext:
+  {}
+  # fsGroup: 2000
+
+securityContext:
+  {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+# service:
+#   type: ClusterIP
+#   port: 80
+
+resources:
+  requests:
+    cpu: 4
+    memory: 3Gi
+  limits:
+    memory: 16Gi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+global:
+  gateway:
+    enabled: false
+  images:
+    alpineK8s:
+      tag: 1.25.16
+      hash: 7480dd21404b26776642a286395db36310a83f8f93ae3393692d5c1e15a5e16a
+    busybox:
+      tag: latest
+      hash: caa382c432891547782ce7140fb3b7304613d3b0438834dce1cad68896ab110a

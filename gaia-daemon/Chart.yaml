@@ -1,0 +1,7 @@
+apiVersion: v2
+name: gaia-daemon
+description: gaia Node daemon component
+type: application
+version: 0.1.0
+
+appVersion: v16.0.0

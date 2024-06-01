@@ -1,0 +1,43 @@
+---
+# Block all outbound connections from a pod.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-all-egress
+spec:
+  podSelector:
+    matchLabels:
+      network-policy: deny-all-egress
+  policyTypes:
+    - Egress
+---
+# Block all outbound connections to cluster-internal addresses.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: external-egress-only
+spec:
+  podSelector:
+    matchLabels:
+      network-policy: external-egress-only
+  policyTypes:
+    - Egress
+  egress:
+    - to: # Allow connection to all IPs except the private ranges
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 10.0.0.0/8
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+    - to: # Still allow access to dns
+      ports:
+        - protocol: UDP
+          port: 53
+    - to: # Still allow access to istio
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: istio-system
+      ports:
+        - protocol: TCP
+          port: 15012

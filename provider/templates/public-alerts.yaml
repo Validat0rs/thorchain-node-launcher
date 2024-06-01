@@ -1,0 +1,39 @@
+{{- if .Values.publicAlerts.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: public-alerts
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: public-alerts
+  template:
+    metadata:
+      labels:
+        app: public-alerts
+    spec:
+      containers:
+        - name: public-alerts
+          image: {{ .Values.publicAlerts.image.name }}:{{ .Values.publicAlerts.image.tag }}@sha256:{{ .Values.publicAlerts.image.hash }}
+          env:
+            {{- range $key, $value := .Values.publicAlerts.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+            {{- range $key, $value := .Values.publicAlerts.secretEnv }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  key: {{ $value | quote }}
+                  name: provider
+            {{- end }}
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 100m
+              memory: 256Mi
+{{- end }}
+

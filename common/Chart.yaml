@@ -1,0 +1,7 @@
+apiVersion: v2
+name: common
+description: Cluster-wide or namespace-wide shared objects
+type: application
+version: 0.1.0
+
+appVersion: 0.1.0

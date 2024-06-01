@@ -1,0 +1,99 @@
+minio:
+  enabled: true
+
+  image:
+    name: minio/minio
+    tag: RELEASE.2023-10-25T06-33-25Z
+    hash: 858ee1ca619396ea1b77cc12a36b857a6b57cb4f5d53128b1224365ee1da7305
+
+  pvc:
+    size: 2Ti
+
+  nginx:
+    image:
+      name: nginx
+      tag: 1.25.3-alpine
+      hash: 2d2a2257c6e9d2e5b50d4fbeb436d8d2b55631c2a89935a425b417eb95212686
+
+# trunk-ignore-all(gitleaks/discord-client-secret): false positives triggered below
+
+thornodeSnapshot:
+  enabled: true
+
+  image:
+    name: registry.gitlab.com/thorchain/devops/node-launcher
+    tag: thornode-snapshot-0.1.0
+    hash: abb576e5087c0ae528f1bac0027c75dc6544d70c14b1aa2b3e69fa3c4f4df826
+
+  # environment variable overrides for thornode-snapshot config
+  env:
+    # there must be at least 2 used for statesync rpc servers
+    THORNODE_RPC_SERVERS: https://rpc-v1.ninerealms.com:443,https://rpc-v1.ninerealms.com:443
+
+    # the PVC size must be at least 2x the current snapshot size
+    PVC_SIZE: 300Gi
+
+    # state sync pod requires high memory - this increases over the course of the fork
+    STATE_SYNC_CPU: "2"
+    STATE_SYNC_MEMORY: "128Gi"
+
+    # ignore NoSchedule taints on tolerations (allows special node pool for statesync)
+    # STATE_SYNC_TOLERATIONS: "xl"
+
+    # set these for service mesh with sidecars that require manual exit
+    # READY_ENDPOINT: http://localhost:15000/ready
+    # QUIT_ENDPOINT: http://localhost:15020/quitquitquit
+
+  # mappings for environment variable to the secret key in the "provider" secret
+  secretEnv:
+    # DISCORD_WEBHOOK_MAINNET_INFO: discord-webhook-mainnet-info
+
+  # default to mon/thurs schedule
+  schedule: 0 10 * * 1,4
+
+  # default to 6 hour timeout
+  activeDeadlineSeconds: 21600
+
+publicAlerts:
+  enabled: false
+
+  image:
+    name: registry.gitlab.com/thorchain/devops/node-launcher
+    tag: public-alerts-0.1.0
+    hash: "<tbd>"
+
+  # environment variable overrides for public-alerts config
+  env:
+    # ENDPOINTS_THORNODE_API: https://thornode.ninerealms.com
+
+  # mappings for environment variable to the secret key in the "provider" secret
+  secretEnv:
+    # WEBHOOKS_ACTIVITY_DISCORD: discord-webhook-mainnet-activity
+    # WEBHOOKS_INFO_DISCORD: discord-webhook-mainnet-info
+    # WEBHOOKS_UPDATES_DISCORD: discord-webhook-chain-updates
+    # WEBHOOKS_SECURITY_DISCORD: discord-webhook-thorsec
+    # WEBHOOKS_SECURITY_SLACK: slack-webhook-security
+    # WEBHOOKS_SECURITY_PAGERDUTY: pagerduty-webhook-thorsec
+    # WEBHOOKS_ERRORS_SLACK: slack-webhook-public-alert-errors
+
+midgardBlockstore:
+  enabled: false
+
+  image:
+    name: registry.gitlab.com/thorchain/midgard
+    tag: "2.22.0"
+    hash: 5d589edac13eade3977338d3a5f789772aadd5ef1731dafc8475bb393207ec13
+
+  schedule: "0 14 * * *"
+
+  env:
+    # these must point at an archive node if the local blockstore is not synced
+    MIDGARD_THORCHAIN_THOR_NODE_URL: https://thornode-v1.ninerealms.com/thorchain
+    MIDGARD_THORCHAIN_TENDERMINT_URL: https://rpc-v1.ninerealms.com/websocket
+
+  pvc:
+    size: 200Gi
+
+  # set these for service mesh with sidecars that require manual exit
+  # quitEndpoint: http://localhost:15020/quitquitquit
+  # readyEndpoint: http://localhost:15000/ready
