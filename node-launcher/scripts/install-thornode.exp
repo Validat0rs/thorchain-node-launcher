@@ -1,0 +1,25 @@
+#!/usr/bin/expect -f
+
+set timeout -1
+
+# Get password
+set password [lindex $argv 0]
+
+spawn env NAME=thornode-1 TYPE=validator NET=mainnet make install
+
+expect "Are you sure"
+send "y\r"
+
+expect "Enter password"
+send "$password\r"
+
+expect "Confirm password"
+send "$password\r"
+
+expect "Are you sure"
+send "y\r"
+
+expect "Are you sure"
+send "y\r"
+
+expect eof
