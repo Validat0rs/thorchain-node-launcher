@@ -3,9 +3,10 @@
 set timeout -1
 
 # Get password
-set password [lindex $argv 0]
+set namespace [lindex $argv 0]
+set password [lindex $argv 1]
 
-spawn env NAME=thornode-1 TYPE=validator NET=mainnet make install
+spawn env NAME=$namespace TYPE=validator NET=mainnet make install
 
 expect "Are you sure"
 send "y\r"
