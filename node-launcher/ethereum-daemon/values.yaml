@@ -12,15 +12,6 @@ net: mainnet
 # should be verified by running `make verify-ethereum` after beacon sync shows 100%.
 beaconCheckpointSyncUrl: ""
 
-# Following the release of Geth v1.13 it is recommended that all new nodes start the
-# daemon with this enabled. We are currently setting the default value to false, since
-# enabling this on an existing node will trigger a re-sync of the state, but in time we
-# intend to make this default and remove the flag. The new storage mechanism will
-# improve pruning functionality and avoid the "Head state missing, repairing chain..."
-# logs which occasionally cause significant downtime after unclean shutdown. More
-# information available in: https://blog.ethereum.org/2023/09/12/geth-v1-13-0.
-stateSchemePath: false
-
 replicaCount: 1
 
 image:
@@ -32,10 +23,6 @@ image:
     name: gcr.io/prysmaticlabs/prysm/beacon-chain
     tag: v5.0.3
     hash: 6c775ba7c814c46e7680a21f05fbc5fdedafb493c4189b39d7ae171e90ea8eae
-  scripts:
-    repository: registry.gitlab.com/thorchain/thornode
-    pullPolicy: IfNotPresent
-    tag: mocknet
 
 imagePullSecrets: []
 nameOverride: ""
