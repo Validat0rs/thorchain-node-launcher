@@ -39,12 +39,14 @@ data:
     rm -f /blockstore/*.tmp
 
     # recreate hashes file
+    echo "Updating hashes..."
     cd /blockstore
     rm -f hashes
     find . -maxdepth 1 -type f -not -name 'lost+found' -not -name 'hashes' \
       | sort \
       | sed 's|^\./||' \
       | xargs sha256sum > hashes
+    echo "Updated hashes."
   sync.sh: |
     #!/bin/sh
     set -euo pipefail
@@ -76,8 +78,8 @@ data:
     # upload to minio
     mc config host add minio http://minio:9000 minio minio123
     mc mb minio/snapshots || true
-    mc anonymous set download minio/snapshots/midgard-blockstore/
-    mc mirror --remove --overwrite /blockstore minio/snapshots/midgard-blockstore/
+    mc anonymous set download minio/snapshots
+    mc mirror --remove --overwrite --retry --limit-upload 100M /blockstore minio/snapshots/midgard-blockstore/
 ---
 apiVersion: batch/v1
 kind: CronJob
