@@ -53,7 +53,7 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: {{ .Values.image.eth.name }}:{{ include "daemon.tag" . }}@sha256:{{ .Values.image.eth.hash }}
           imagePullPolicy: IfNotPresent
-          command: [ "sh", "-c", 'geth --syncmode snap --http --http.addr 0.0.0.0 --http.port 8545 --http.api "eth,net,engine,web3,miner,personal,txpool,debug" --http.corsdomain "*" --http.vhosts="*" --authrpc.vhosts="localhost" --authrpc.jwtsecret="/root/jwt.hex"{{ if .Values.stateSchemePath }} --state.scheme=path{{ end }}' ]
+          command: [ "sh", "-c", 'geth --syncmode snap --http --http.addr 0.0.0.0 --http.port 8545 --http.api "eth,net,engine,web3,miner,personal,txpool,debug" --http.corsdomain "*" --http.vhosts="*" --authrpc.vhosts="localhost" --authrpc.jwtsecret="/root/jwt.hex"' ]
           volumeMounts:
             - name: entrypoint
               mountPath: /entrypoint
