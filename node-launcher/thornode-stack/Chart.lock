@@ -14,9 +14,6 @@ dependencies:
 - name: midgard
   repository: file://../midgard
   version: 0.1.0
-- name: binance-daemon
-  repository: file://../binance-daemon
-  version: 0.1.0
 - name: bitcoin-daemon
   repository: file://../bitcoin-daemon
   version: 0.1.0

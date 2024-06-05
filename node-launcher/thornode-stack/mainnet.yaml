@@ -1,6 +1,6 @@
 global:
-  tag: mainnet-1.132.1
-  hash: 92078683fd1e439adc5afc73aef28a686d5b014bf99808ea600e98b0c9c84adc
+  tag: mainnet-1.133.0
+  hash: 23b830e81b7cf5fc06904b4c18259fabf10846bf5ff5fb190bfd15f0624c196d
 
 thornode:
   haltHeight:
@@ -43,9 +43,6 @@ bifrost:
 
 
 # disable all daemons in node namespace
-binance-daemon:
-  enabled: false
-
 bitcoin-daemon:
   enabled: false
 

@@ -7,9 +7,6 @@ midgard:
     tag: 2.6.7
     hash: 041825f08eaf8cb6830991819b0b21bc6430abbe36905a61fbac5eb80e740f92
 
-binance-daemon:
-  enabled: true
-
 bitcoin-daemon:
   enabled: true
 
