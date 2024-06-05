@@ -13,8 +13,6 @@ NAME=daemons TYPE=daemons NET=mainnet make install
 ```yaml
 # point bifrost at shared daemons
 bifrost:
-  binanceDaemon:
-    mainnet: http://binance-daemon.daemons.svc.cluster.local:27147
   bitcoinDaemon:
     mainnet: bitcoin-daemon.daemons.svc.cluster.local:8332
   litecoinDaemon:
@@ -43,9 +41,6 @@ bifrost:
     BIFROST_CHAINS_BSC_BLOCK_SCANNER_RPC_HOST: http://binance-smart-daemon.daemons.svc.cluster.local:8545
 
 # disable all daemons in node namespace
-binance-daemon:
-  enabled: false
-
 binance-smart-daemon:
   enabled: false
 

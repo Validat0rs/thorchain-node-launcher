@@ -31,11 +31,6 @@ dependencies:
     version: 0.1.0
     condition: midgard.enabled
 
-  - name: binance-daemon
-    repository: file://../binance-daemon
-    version: 0.1.0
-    condition: binance-daemon.enabled
-
   - name: bitcoin-daemon
     repository: file://../bitcoin-daemon
     version: 0.1.0

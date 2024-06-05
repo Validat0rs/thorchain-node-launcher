@@ -142,7 +142,7 @@ get_node_info_short() {
 get_node_service() {
   [ "$SERVICE" != "" ] && return
   echo "=> Select THORNode service"
-  menu thornode thornode bifrost midgard gateway binance-daemon binance-smart-daemon dogecoin-daemon gaia-daemon avalanche-daemon ethereum-daemon bitcoin-daemon litecoin-daemon bitcoin-cash-daemon midgard-timescaledb
+  menu thornode thornode bifrost midgard gateway binance-smart-daemon dogecoin-daemon gaia-daemon avalanche-daemon ethereum-daemon bitcoin-daemon litecoin-daemon bitcoin-cash-daemon midgard-timescaledb
   SERVICE=$MENU_SELECTED
   echo
 }
@@ -445,7 +445,7 @@ deploy_fullnode() {
     $args $EXTRA_ARGS \
     --set global.mnemonicSecret=thornode-mnemonic \
     --set global.net="$NET" \
-    --set midgard.enabled=true,bifrost.enabled=false,binance-daemon.enabled=false \
+    --set midgard.enabled=true,bifrost.enabled=false \
     --set bitcoin-daemon.enabled=false,bitcoin-cash-daemon.enabled=false \
     --set litecoin-daemon.enabled=false,ethereum-daemon.enabled=false \
     --set dogecoin-daemon.enabled=false,gaia-daemon.enabled=false \
@@ -457,7 +457,7 @@ deploy_fullnode() {
     --create-namespace $EXTRA_ARGS \
     --set global.mnemonicSecret=thornode-mnemonic \
     --set global.net="$NET" \
-    --set midgard.enabled=true,bifrost.enabled=false,binance-daemon.enabled=false \
+    --set midgard.enabled=true,bifrost.enabled=false \
     --set bitcoin-daemon.enabled=false,bitcoin-cash-daemon.enabled=false \
     --set litecoin-daemon.enabled=false,ethereum-daemon.enabled=false \
     --set dogecoin-daemon.enabled=false,gaia-daemon.enabled=false \
