@@ -15,10 +15,17 @@ postgres:
 
 net: mainnet
 
+genesis:
+  remote: https://rpc-v1.ninerealms.com/genesis
+
+env:
+  MIDGARD_GENESIS_LOCAL: /blockstore/genesis.json
+  MIDGARD_GENESIS_INITIAL_BLOCK_HEIGHT: "4786560"
+  MIDGARD_GENESIS_INITIAL_BLOCK_HASH: 9B86543A5CF5E26E3CE93C8349B2EABE5E238DFFC9EBE8EC6207FE7178FF27AC
+
 blockstore:
-  enabled: false
-  remote: https://storage.googleapis.com/public-snapshots-ninerealms/midgard-blockstore/v2/
-  size: 100Gi
+  remote: https://snapshots.ninerealms.com/snapshots/midgard-blockstore/
+  size: 400Gi
 
 replicaCount: 1
 
@@ -27,7 +34,7 @@ logLevel: info
 image:
   name: registry.gitlab.com/thorchain/midgard
   tag: "" # When tag is empty it defaults to the chart appVersion.
-  hash: 6d40d7ac9825f08bd8a9358da7aff71d1e9062fe560446b496748063d9b5b7d7
+  hash: a03a9136358aa2b3c88fd456c77c35b5dd052eac8212ec7a70a7fee6c9d6a5a3
 
 timescaleDbImage:
   repository: timescale/timescaledb
@@ -108,6 +115,9 @@ affinity: {}
 
 global:
   images:
+    alpineK8s:
+      tag: 1.25.16
+      hash: 7480dd21404b26776642a286395db36310a83f8f93ae3393692d5c1e15a5e16a
     busybox:
       tag: latest
       hash: caa382c432891547782ce7140fb3b7304613d3b0438834dce1cad68896ab110a

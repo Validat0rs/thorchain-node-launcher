@@ -77,12 +77,12 @@ publicAlerts:
     # WEBHOOKS_ERRORS_SLACK: slack-webhook-public-alert-errors
 
 midgardBlockstore:
-  enabled: false
+  enabled: true
 
   image:
     name: registry.gitlab.com/thorchain/midgard
-    tag: "2.22.0"
-    hash: 5d589edac13eade3977338d3a5f789772aadd5ef1731dafc8475bb393207ec13
+    tag: "2.22.3"
+    hash: a03a9136358aa2b3c88fd456c77c35b5dd052eac8212ec7a70a7fee6c9d6a5a3
 
   schedule: "0 14 * * *"
 
@@ -92,7 +92,7 @@ midgardBlockstore:
     MIDGARD_THORCHAIN_TENDERMINT_URL: https://rpc-v1.ninerealms.com/websocket
 
   pvc:
-    size: 200Gi
+    size: 400Gi
 
   # set these for service mesh with sidecars that require manual exit
   # quitEndpoint: http://localhost:15020/quitquitquit
