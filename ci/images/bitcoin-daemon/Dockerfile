@@ -8,11 +8,11 @@ RUN apt-get update && \
   gnupg=2.2.27-2+deb11u2 \
   wget=1.21-1+deb11u1
 
-# import builder keys (https://github.com/bitcoin/bitcoin/tree/master/contrib/verify-binaries)
+# import builder keys
 WORKDIR /keys
 RUN git init && \
   git remote add origin https://github.com/bitcoin-core/guix.sigs.git && \
-  git fetch --depth 1 origin ca2147e5f8e360bc42b7eff57f4759afe723e59a && \
+  git fetch --depth 1 origin 441d5ea969991203e2a01fe82b4aa8a3c3fc1ddc && \
   git checkout FETCH_HEAD && \
   for file in builder-keys/*; do gpg --import "$file"; done
 
