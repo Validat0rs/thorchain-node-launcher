@@ -4,4 +4,4 @@ description: Ethereum Daemon component
 type: application
 version: 0.1.0
 
-appVersion: v1.14.2
+appVersion: v1.14.5

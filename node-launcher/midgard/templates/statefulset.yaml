@@ -35,6 +35,16 @@ spec:
         - name: init-thor
           image: busybox:{{ .Values.global.images.busybox.tag }}@sha256:{{ .Values.global.images.busybox.hash }}
           command: ['sh', '-c', "until nc -zv {{ .Values.thorApi }}; do echo waiting for thornode; sleep 2; done"]
+        - name: init-genesis
+          image: alpine/k8s:{{ .Values.global.images.alpineK8s.tag }}@sha256:{{ .Values.global.images.alpineK8s.hash }}
+          command:
+            - /init-genesis.sh
+          volumeMounts:
+          - name: config
+            mountPath: /init-genesis.sh
+            subPath: init-genesis.sh
+          - name: blockstore
+            mountPath: /blockstore
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
@@ -42,13 +52,15 @@ spec:
           image: {{ .Values.image.name }}:{{ include "daemon.tag" . }}@sha256:{{ .Values.image.hash }}
           imagePullPolicy: IfNotPresent
           command: ['/entrypoint.sh']
-          {{- if .Values.blockstore.enabled }}
           env:
+            {{- range $key, $value := .Values.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
             - name: MIDGARD_BLOCKSTORE_LOCAL
               value: /blockstore
             - name: MIDGARD_BLOCKSTORE_REMOTE
               value: {{ .Values.blockstore.remote }}
-          {{- end }}
           volumeMounts:
           - name: config
             mountPath: /config.json.tpl
@@ -59,10 +71,8 @@ spec:
           - name: config
             mountPath: /resources/hashes/thorchain
             subPath: thorchain-blockstore-hashes
-          {{- if .Values.blockstore.enabled }}
           - name: blockstore
             mountPath: /blockstore
-          {{- end }}
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
@@ -95,7 +105,6 @@ spec:
           configMap:
             name: {{ include "midgard.fullname" . }}-config
             defaultMode: 0777
-  {{- if .Values.blockstore.enabled }}
   {{- if .Values.persistence.enabled }}
   volumeClaimTemplates:
   - metadata:
@@ -120,7 +129,6 @@ spec:
   {{- else }}
       - name: blockstore
         emptyDir: {}
-  {{- end }}
   {{- end }}
 
       {{- with .Values.nodeSelector }}
